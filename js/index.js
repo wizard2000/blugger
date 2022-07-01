@@ -17,6 +17,6 @@ const createPost = ({title , body , id}) => {
     const newPost = document.createElement('post-component')
     newPost.setAttribute('title',title);
     newPost.setAttribute('text',body);
-    newPost.setAttribute('id',id);
+    newPost.setAttribute('postId',id);
     return newPost;
 }

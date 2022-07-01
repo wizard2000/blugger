@@ -19,33 +19,61 @@ class PostComponent extends HTMLElement {
         this.attachShadow({ mode: 'open' })
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
+        this.toFavorite = this.toFavorite.bind(this);
+        this.toTrash = this.toTrash.bind(this);
+
     }
-    makeFavorite() {
-        console.log('makeFavorite');
+    toFavorite() {
+        let favorites = [];
+        const storageValue = JSON.parse(localStorage.getItem('favorites'));
+        console.log(storageValue);
+        const id = this.getAttribute('postId');
+
+        if (storageValue === null) {
+            favorites[0] = id;
+        } else {
+            if (storageValue.find(item => item == id)) {
+                favorites = [...storageValue]
+            } else {
+                favorites = [...storageValue, id];
+            }
+        }
+        console.log(favorites);
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        console.log(JSON.parse(localStorage.getItem('favorites')));
+
     }
-    makeTrash() {
-        console.log('makeTrash');
+    toTrash() {
+        // Request to delete the post;
+        const id = this.getAttribute('postId');
+            fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {method: 'DELETE'})
+                .then(res =>{res.json()})
+                .then(data=>console.log(data))
+                .catch(err => console.log(err));
+
+
+        this.remove();
     }
 
     connectedCallback() {
-        this.className="col col-md-4 mt-4";
+        this.className = "col col-md-4 mt-4";
         this.shadowRoot.querySelector('.card-title').innerHTML = this.getAttribute('title');
         this.shadowRoot.querySelector('.card-text').innerHTML = this.getAttribute('text');
 
 
-        const toFavorte = this.shadowRoot.querySelector('#starBtn');
-        const toTrash = this.shadowRoot.querySelector('#trashBtn');
+        const star = this.shadowRoot.querySelector('#starBtn');
+        const trash = this.shadowRoot.querySelector('#trashBtn');
 
-        toFavorte.addEventListener('click', this.makeFavorite);
-        toTrash.addEventListener('click', this.makeTrash);
+        star.addEventListener('click', this.toFavorite);
+        trash.addEventListener('click', this.toTrash);
     }
 
     disconnectedCallback() {
-        const toFavorte = this.shadowRoot.querySelector('#starBtn');
-        const toTrash = this.shadowRoot.querySelector('#trashBtn');
+        const star = this.shadowRoot.querySelector('#starBtn');
+        const trash = this.shadowRoot.querySelector('#trashBtn');
 
-        toFavorte.removeEventListener();
-        toTrash.removeEventListener();
+        star.removeEventListener('click', this.toFavorite);
+        trash.removeEventListener('click', this.toTrash);
     }
 }
 
