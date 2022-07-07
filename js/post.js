@@ -26,17 +26,21 @@ class PostComponent extends HTMLElement {
     toFavorite() {
         let favorites = [];
         const storageValue = JSON.parse(localStorage.getItem('favorites'));
-        console.log(storageValue);
         const id = this.getAttribute('postId');
+        const star = this.shadowRoot.querySelector('#starBtn');
+        console.log(storageValue);
 
-        if (storageValue === null) {
+
+        if (storageValue === null || storageValue.lenght === 0) {
             favorites[0] = id;
-        } else {
-            if (storageValue.find(item => item == id)) {
-                favorites = [...storageValue]
-            } else {
-                favorites = [...storageValue, id];
-            }
+            star.className =" bi-star-fill"
+
+        } else if(storageValue.indexOf(id)!=-1) {
+            favorites = storageValue.filter(postID =>postID != id);
+            star.className =" bi-star"
+        }else{
+            favorites = [...storageValue, id];
+            star.className =" bi-star-fill"
         }
         console.log(favorites);
         localStorage.setItem('favorites', JSON.stringify(favorites));
@@ -51,7 +55,12 @@ class PostComponent extends HTMLElement {
                 .then(data=>console.log(data))
                 .catch(err => console.log(err));
 
+                const storageValue = JSON.parse(localStorage.getItem('favorites'));
+                if(storageValue.indexOf(id)!=-1) {
+                   const favorites = storageValue.filter(postID =>postID != id);
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
 
+                }
         this.remove();
     }
 
@@ -63,6 +72,14 @@ class PostComponent extends HTMLElement {
 
         const star = this.shadowRoot.querySelector('#starBtn');
         const trash = this.shadowRoot.querySelector('#trashBtn');
+
+        const storageValue = JSON.parse(localStorage.getItem('favorites'));
+        const id = this.getAttribute('postId');
+
+        if(storageValue.indexOf(id)!=-1) {
+    
+            star.className =" bi-star-fill"
+        }
 
         star.addEventListener('click', this.toFavorite);
         trash.addEventListener('click', this.toTrash);
